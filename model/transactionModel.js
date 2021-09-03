@@ -1,18 +1,12 @@
 const mongoose = require("mongoose");
 const transSchema = new mongoose.Schema({
-  // type: {
-  //   type: String,
-  //   default: "purchase",
-  // },
+
   purchaseDate: {
     type: Date,
   },
   transactionDate: {
     type: Date,
-    dafault:null,
-  },
-  quantity: {
-    type: [Number],
+    dafault:Date.now(),
   },
   totalprice: {
     type: Number,
@@ -20,7 +14,25 @@ const transSchema = new mongoose.Schema({
   customerName: {
     type: String,
   },
-  drugs: [{ type: mongoose.Schema.ObjectId, ref: "Drug" }],
+  // The drugs should be an array that has a quantity field
+
+
+  // Can I still populate the drug Field
+
+  drugs:[{type: mongoose.Schema.ObjectId, ref: "Drug"}],
+
+  // drugs: [
+  //   {
+  //     // drug:{
+  //        type: mongoose.Schema.ObjectId, ref: "Drug"
+  //       // },
+
+  //   }
+  // ],
+  quantity:{
+    type:[Number], required:true, default:1
+  },
+
   creator:{type:mongoose.Schema.ObjectId,ref:"User"}
 }, {
   toJSON: { virtuals: true },
@@ -42,16 +54,7 @@ transSchema.pre(/^find/,async function (next) {
   next();
 });
 
-transSchema.pre('save',function(next){
-  
-  this.transactionDate = Date.now()
-  next()
-})
 
-// transSchema.virtual("totalPrice").get(function () {
-//   const drug = 
-//   return this.price * this.quantity[0];
-// });
 
 const Transaction = mongoose.model("Transaction", transSchema);
 module.exports = Transaction;

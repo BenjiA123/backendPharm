@@ -21,14 +21,17 @@ exports.createCustomerTransaction = catchAsync(async(req,res,next)=>{
     const document = req.body
 
     const drugs = await Drug.find({_id: {$in: document.drugs}}).lean().exec();
-    let initalQuantity = 0;
+    let initalDrugQuantity = 0;
     let x = [];
     let totalPrice = 0;
 
     for (let index = 0; index < drugs.length; index++) {
         const drug = drugs[index];
-        initalQuantity = document.quantity[index]
-        x.push(initalQuantity * drug.sellingPrice);
+        initalDrugQuantity = document.quantity[index]
+        x.push(initalDrugQuantity * drug.sellingPrice);
+        let currentAmount = drug.amount - document.quantity[index]
+        // Edited the amount in the drug collection
+        await Drug.findByIdAndUpdate(drug._id,{amount:currentAmount})
     }
 
     for (let index = 0; index < x.length; index++) {
@@ -49,30 +52,7 @@ exports.createCustomerTransaction = catchAsync(async(req,res,next)=>{
 
 
 
-// exports.createCustomerTransaction = catchAsync(async(req,res,next)=>{
-
-//     let = transaction = req.body
-//     const drugsInTran = await Drug.find({_id:{$in:transaction.drugs}}).lean().exec()
-
-//     res.send(drugsInTran)
-// })
 
 
 
 
-
-
-
-
-
-
-
-
-// More transaction data functionalities
-// exports.getTransactionsStats = catchAsync(async (req, res) => {
-//   const stats = Transaction.aggregate([
-//     {
-//     //   $match: {},
-//     },
-//   ]);
-// });
