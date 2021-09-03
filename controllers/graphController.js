@@ -12,33 +12,35 @@ const AppError = require("../utils/AppError");
 exports.oneDrugGraph = catchAsync(async(req,res,next)=>{
 
     const drugId = req.params.drugId
-    // In the future make it not to be on a daily basis but with a duration given by the user.
-
     // Get the drug
-    const drug =await Drug.findById(drugId)
-
-    await Drug.deleteMany({drugs:undefined})
+    const drug =await Drug.findById(drugId).lean().exec()
 
     // Find all the associated transactions linked to the drug
 
-    const tran = await Transaction.find({drugs:{_id:drugId}})
+    const tran = await Transaction.find({drugs:{_id:drugId}}).lean().exec()
+    // The graph should contain the amout sold wrt the days
 
-    // Split the transactions according to the days in whch they were carried out
-    const transactionGrouping = await Transaction.aggregate([
+    // Use all the days of the week as a const the only variable is the amount of drugs sold on those days
+    const timeFrame = Date.now()- 2*12* 30* 24* 60 * 60 * 1000 //2 years
+
+    const graphData = await Transaction.aggregate([
         {
-            $match:{drugs:{$ne:null}},
+            $group:{
+                _id:'$transactionDate',
+                numTran:{$sum:1}
+            }
         }
-      
     ])
 
-    // Collect the data according to the amount collected on a daily basis
 
-
-    // Send the response out
 
     res.status(200).json({
-        status:'success',transactionGrouping
-        // transactions
+        status:'success',
+        transStat:{
+            graphData,
+            // transNumber:tran.length,
+            // transaction:tran[0]
+        }
     })
 })
 
@@ -47,11 +49,63 @@ exports.oneDrugGraph = catchAsync(async(req,res,next)=>{
 
 exports.transactionGraph = catchAsync(async(req,res,next)=>{
 
-    res.send("Transaction Graph data")
+    // Get the current date and get data by filtering
+    const {startDate,endDate}  = req.params
+    console.log(startDate,endDate)
+
+    // Get transactions 
+    const graphData = await Transaction.aggregate([
+
+        {
+            // gets all transactions within a particular range
+            $match:{
+                transactionDate:{
+                    $gte:new Date(`${startDate}`),
+                    $lte:new Date(`${endDate}`)
+                }
+            }
+        },
+        {
+            $group:
+            {
+                _id:'$transactionDate',
+                numTran:{$sum:1},
+            },
+           
+        },
+        {
+            $addFields:{transactionDate:'$_id'}
+        },
+        {
+            $project:{ _id:0}
+        },
+        // {
+        //     $limit:5,
+            
+        // },
+        {
+            $sort:{numTran:-1}
+        },
+       
+    ])
+    // I can query Two Documents one by one, the result g=form the aggregatio 
+    // Pipeline of one, gives me data for the other
+
+
+
+    // This returns all the transactions for every day
+    res.status(200).json({
+        status:'success',
+        transStat:{
+            result:graphData.length,
+            graphData
+        },
+    })
 })
 
 exports.drugGraph = catchAsync(async(req,res,next)=>{
 
+    // Shows all drugs
     res.send("Drug Graph data")
 })
 

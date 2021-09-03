@@ -7,7 +7,7 @@ const AppError = require("../utils/AppError");
 exports.getAllTransactions = factory.getAll(Transaction);
 exports.getTransaction = factory.getOne(Transaction);
 
-// Chrate transaction with API
+// Craate transaction with API
 exports.createTransaction = factory.createOne(Transaction);
 
 exports.updateTransaction = factory.updateOne(Transaction);
@@ -21,7 +21,6 @@ exports.createCustomerTransaction = catchAsync(async(req,res,next)=>{
     const document = req.body
 
     const drugs = await Drug.find({_id: {$in: document.drugs}}).lean().exec();
-
     let initalQuantity = 0;
     let x = [];
     let totalPrice = 0;
@@ -50,7 +49,13 @@ exports.createCustomerTransaction = catchAsync(async(req,res,next)=>{
 
 
 
+// exports.createCustomerTransaction = catchAsync(async(req,res,next)=>{
 
+//     let = transaction = req.body
+//     const drugsInTran = await Drug.find({_id:{$in:transaction.drugs}}).lean().exec()
+
+//     res.send(drugsInTran)
+// })
 
 
 
