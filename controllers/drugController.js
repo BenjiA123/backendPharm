@@ -27,7 +27,19 @@ exports.saveNewDrug = factory.createOne(Drug);
 
 exports.getDrug = factory.getOne(Drug);
 
-exports.searchDrug = factory.search(Drug);
+exports.searchDrug =catchAsync(async (req, res, next) => {
+    let searchQuery = req.query.q;
+
+    const search = await Drug.fuzzySearch(searchQuery);
+    res.status(200).json({
+      result: search.length,
+      document: {
+        data: search,
+      },
+    });
+  });
+
+
 
 // Bulk Editing should be possible
 exports.deleteDrug = factory.deleteOne(Drug);

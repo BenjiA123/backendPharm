@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const mongooseFuzzySearching = require('mongoose-fuzzy-searching')
 const drugSchema = new mongoose.Schema(
   {
     genericName: {
@@ -68,6 +69,7 @@ drugSchema.virtual("expired").get(function () {
   return this.expiryDate - Date.now() < 0
 });
 
+drugSchema.plugin(mongooseFuzzySearching, { fields: ['genericName'] })
 
 const Drug = mongoose.model("Drug", drugSchema);
 

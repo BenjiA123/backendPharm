@@ -6,6 +6,7 @@ exports.search = (Model) =>
   catchAsync(async (req, res, next) => {
     let searchQuery = req.query.q;
 
+    // Something Wrong With this method of finding
     let searchObj = { $text: { $search: searchQuery } };
     if (!searchQuery) searchObj = {};
 
