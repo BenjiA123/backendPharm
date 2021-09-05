@@ -13,7 +13,7 @@ const drugSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["1", "2", "3"],
+      enum: ["tablet", "suspension", "injectible"],
       required: true,
     },
     sellingPrice: {
@@ -24,19 +24,12 @@ const drugSchema = new mongoose.Schema(
       type: Number,
     },
     purchaseDate: {
+      // Purchase dates should be an array because they purchase drugs multiple times
       type: Date,
     },
     expiryDate: {
       type: Date,
       required: true,
-    },
-    expired: {
-      type: Boolean,
-      default: false,
-    },
-    available: {
-      type: Boolean,
-      default: true,
     },
     amount: {
       type: Number,
@@ -51,16 +44,7 @@ const drugSchema = new mongoose.Schema(
 drugSchema.index({ genericName: "text" });
 
 drugSchema.pre("save", function (next) {
-  if (this.type == "1") {
-    this.type = "tablet";
-  } else if (this.type == "2") {
-    this.type = "suspension";
-  } else if (this.type == "3") {
-    this.type = "injectible";
-  }
   this.purchaseDate = Date.now();
-  this.available = this.amount > 0;
-  this.expired = this.expiryDate - this.purchaseDate < 0;
   next();
 });
 
@@ -69,12 +53,20 @@ drugSchema.pre(/^find/, async function (next) {
   next();
 });
 drugSchema.virtual("almostExpired").get(function () {
-  return Date.now() >= this.expiryDate - 30;
+  return Date.now() - this.expiryDate < 30;
 });
 
-drugSchema.methods.updateQuantity = async function (quantity, drugId) {
-  console.log(quantity, drugId);
-};
+drugSchema.virtual("almostFinished").get(function () {
+  return this.amount < 10;
+});
+
+drugSchema.virtual("available").get(function () {
+  return this.amount > 0;
+});
+
+drugSchema.virtual("expired").get(function () {
+  return this.expiryDate - Date.now() < 0
+});
 
 
 const Drug = mongoose.model("Drug", drugSchema);

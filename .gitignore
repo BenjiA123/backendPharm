@@ -1,4 +1,4 @@
 node_modules/
-clientPharm/
+# clientPharm/
 dummydata/
 config.env

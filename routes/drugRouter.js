@@ -61,8 +61,9 @@ drugRouter
 drugRouter
   .route("/")
   .get(
-    AuthController.protect,
-    AuthController.restrictTo("MD", "pharmacist"),
+    // Fix Authorization Later
+    // AuthController.protect,
+    // AuthController.restrictTo("MD", "pharmacist"),
     DrugController.getAllDrugs
   )
   .post(

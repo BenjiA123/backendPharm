@@ -12,7 +12,7 @@ graphRouter.use(AuthController.protect,AuthController.restrictTo("MD","admin"))
 graphRouter.route("/transaction/:startDate/:endDate").get((GraphController.transactionGraph));
 
 graphRouter.route("/drug").get((GraphController.drugGraph));
-graphRouter.route("/drug/multiple").get((GraphController.multipleDrugsOnOneGraph));
+graphRouter.route("/drug/multiple/:startDate/:endDate").get((GraphController.multipleDrugsOnOneGraph));
 graphRouter.route("/drug/amount").get((GraphController.drugsVsAmount));
 graphRouter.route("/drug/:drugId").get((GraphController.oneDrugGraph));
 
