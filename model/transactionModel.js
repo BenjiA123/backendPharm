@@ -14,34 +14,28 @@ const transSchema = new mongoose.Schema({
   customerName: {
     type: String,
   },
-  // The drugs should be an array that has a quantity field
-
-
-  // Can I still populate the drug Field
+  approved:{
+    type:Boolean,
+    default:false,
+    
+  },
 
   drugs:[{type: mongoose.Schema.ObjectId, ref: "Drug"}],
 
-  // drugs: [
-  //   {
-  //     // drug:{
-  //        type: mongoose.Schema.ObjectId, ref: "Drug"
-  //       // },
-
-  //   }
-  // ],
   quantity:{
     type:[Number], required:true, default:1
   },
 
-  creator:{type:mongoose.Schema.ObjectId,ref:"User"}
+  creator:{type:mongoose.Schema.ObjectId,ref:"User"},
+  approver:{
+    type:mongoose.Schema.ObjectId,ref:"User",
+    default:null}
 }, {
   toJSON: { virtuals: true },
   toObject: { virtuals: true },
 });
 
 
-// Logic for Changing Quantity
-// Use a pre save middleware to populate the drugs documant
 
 transSchema.pre(/^find/,async function (next) {
   this.populate({

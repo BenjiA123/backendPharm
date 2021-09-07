@@ -12,11 +12,17 @@ transRouter
   )
   .post(
     AuthController.protect,
-    AuthController.restrictTo("MD", "pharmacist", "cachier"),
-    TransactionController.createCustomerTransaction
+    AuthController.restrictTo("MD", "pharmacist"),
+    TransactionController.createCustomerPendingTransaction
   );
 
-  // transRouter.post(createCustomerTransaction)
+  transRouter
+  .route("/approve/:transactionId")
+  .post(
+    AuthController.protect,
+    AuthController.restrictTo("MD", "pharmacist"),
+    TransactionController.createApprovedTransaction
+    )
 
 transRouter
   .route("/:id")
