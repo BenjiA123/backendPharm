@@ -1,18 +1,16 @@
 const mongoose = require("mongoose");
 const transSchema = new mongoose.Schema({
 
-  purchaseDate: {
-    type: Date,
-  },
   transactionDate: {
     type: Date,
-    dafault:Date.now(),
   },
   totalprice: {
     type: Number,
+    required:true
   },
   customerName: {
     type: String,
+    required:true,
   },
   approved:{
     type:Boolean,
@@ -20,13 +18,13 @@ const transSchema = new mongoose.Schema({
     
   },
 
-  drugs:[{type: mongoose.Schema.ObjectId, ref: "Drug"}],
+  drugs:[{type: mongoose.Schema.ObjectId, ref: "Drug", required:[true,"Drugs is Required"]}],
 
   quantity:{
-    type:[Number], required:true, default:1
+    type:[Number], required:[true,"Quantity is Required"], default:1
   },
 
-  creator:{type:mongoose.Schema.ObjectId,ref:"User"},
+  creator:{type:mongoose.Schema.ObjectId,ref:"User",  required:[true,"A creator is Required"]},
   approver:{
     type:mongoose.Schema.ObjectId,ref:"User",
     default:null}
@@ -37,6 +35,11 @@ const transSchema = new mongoose.Schema({
 
 
 
+transSchema.pre('save',async function(next){
+  this.transactionDate = Date.now()
+})
+
+
 transSchema.pre(/^find/,async function (next) {
   this.populate({
     path: "drugs",
@@ -44,6 +47,9 @@ transSchema.pre(/^find/,async function (next) {
   })
   .populate({
     path:'creator'
+  })
+  .populate({
+    path:'approver'
   })
   next();
 });

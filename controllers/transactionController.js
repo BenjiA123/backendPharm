@@ -17,23 +17,25 @@ exports.deleteTransaction = factory.deleteOne(Transaction);
 
 
 exports.createCustomerPendingTransaction = catchAsync(async(req,res,next)=>{
-    // There should be at least 1 drug on each transaction
     const document = req.body
-
-    const drugs = await Drug.find({_id: {$in: document.drugs}}).lean().exec();
-    if(!drugs){
-        return new AppError("Their are no drugs with this Id", 400)
-    }
     let initalDrugQuantity = 0;
     let x = [];
     let totalPrice = 0;
 
-    for (let index = 0; index < drugs.length; index++) {
-        const drug = drugs[index];
+    for (let index = 0; index < document.drugs.length; index++) {
+        const drug = await Drug.findById(document.drugs[index]).lean().exec();
+        if(!drug){
+            return next(new AppError("Their are no drugs with this Id", 400))
+        }
         initalDrugQuantity = document.quantity[index]
         x.push(initalDrugQuantity * drug.sellingPrice);
         let currentAmount = drug.amount - document.quantity[index]
+
         // Edited the amount in the drug collection
+        const drugX = await Drug.findById(drug._id)
+
+        if(drugX.amount === 0 || drugX.amount- document.quantity[index]<0) 
+        return next(new AppError(`You do not have enough In Stock for this Transaction `,500))
         await Drug.findByIdAndUpdate(drug._id,{amount:currentAmount})
     }
 
@@ -58,15 +60,15 @@ exports.createApprovedTransaction = catchAsync(async(req,res,next)=>
     const transId = req.params.transactionId
     const approver = req.user._id
 
-    if(!transId) return new AppError("This Transaction hasn't been created", 400)
-    if(!approver) return new AppError("The Cachier Or MD needs to Approve this transaction", 400)
+    if(!transId) return next(new AppError("This Transaction hasn't been created", 400))
+    if(!approver) return next(new AppError("The Cachier Or MD needs to Approve this transaction", 400))
 
-    // This response isnt the same with what is in the database.
-    // In the data base it works fine
-    const approvedTrans = await Transaction.findByIdAndUpdate(transId,{approved:true,approver:approver}).populate('approver').lean().exec();
+// I have to do this twice for this to work
 
-    res.status(200)
-    .json({
+    const approvedTrans = await Transaction.findByIdAndUpdate(transId,{approved:true,approver:approver});
+    if(!approvedTrans) return next(new AppError("No transaction exists with this id", 400))
+
+    res.status(200).json({
         status:"success",
         approvedTrans
     })
