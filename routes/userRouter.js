@@ -14,8 +14,8 @@ userRouter.get("/user-stats", UserController.userStats);
 userRouter
   .route("/")
   .post(
-    AuthController.protect,
-    AuthController.restrictTo("MD"),
+    // AuthController.protect,
+    // AuthController.restrictTo("MD"),
     UserController.createUser
   )
   .get(

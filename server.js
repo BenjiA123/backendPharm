@@ -24,7 +24,7 @@ const server = app.listen(port, () => {});
 
 // MD
 // {
-//     "username":"Akintpiio123 033",
+//     "username":"MD",
 //     "password":"1234567"
 // }
 
@@ -35,5 +35,5 @@ const server = app.listen(port, () => {});
 // }
 
 // cachier
-// { "username":"A kin tpiio 123 033",
+// { "username":"cachier",
 //     "password":"1234567"}

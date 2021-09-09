@@ -7,12 +7,12 @@ transRouter
   .route("/")
   .get(
     AuthController.protect,
-    AuthController.restrictTo("MD"),
+    AuthController.restrictTo("MD", "cachier"),
     TransactionController.getAllTransactions
   )
   .post(
     AuthController.protect,
-    AuthController.restrictTo("MD", "pharmacist"),
+    AuthController.restrictTo("MD", "cachier"),
     TransactionController.createCustomerPendingTransaction
   );
 
@@ -20,7 +20,7 @@ transRouter
   .route("/approve/:transactionId")
   .post(
     AuthController.protect,
-    AuthController.restrictTo("MD", "pharmacist"),
+    AuthController.restrictTo("MD", "cachier"),
     TransactionController.createApprovedTransaction
     )
 
@@ -33,7 +33,7 @@ transRouter
   )
   .patch(
     AuthController.protect,
-    AuthController.restrictTo("MD", "pharmacist", "cachier"),
+    AuthController.restrictTo("MD"),
     TransactionController.updateTransaction
   )
   .delete(
