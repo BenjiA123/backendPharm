@@ -5,6 +5,25 @@ const User = require("../model/userModel");
 
 const jwt = require("jsonwebtoken");
 
+
+const createSendToken = (user, statusCode, res)=>{
+  const token = signToken(user._id)
+  const cookieOptions = {
+    expires:new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN *24 *60 *60 *1000),
+    secure: false,
+    httpOnly:false
+  }
+
+  if(process.env.NODE_ENV === 'production') cookieOptions.secure = true
+  res.cookie('jwt',token,cookieOptions )
+
+  res.status(statusCode).json({
+    status:"sucess",
+    token,
+    user,
+  });
+}
+
 const signToken = (id) => {
   return jwt.sign(
     {
@@ -32,12 +51,8 @@ exports.login = catchAsync(async (req, res, next) => {
 
   // I prevented the password from coming up in the response
   user.password =undefined
+  createSendToken(user,201,res)
 
-  const token = signToken(user._id);
-  res.status(200).json({
-    token,
-    user,
-  });
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -47,6 +62,9 @@ exports.protect = catchAsync(async (req, res, next) => {
     req.headers.authorization.startsWith("Bearer")
   ) {
     token = req.headers.authorization.split(" ")[1];
+  }
+  else if(req.cookies.jwt)
+  {token = req.cookies.jwt
   }
   if (!token) {
     return next(new AppError("No token available", 401));
@@ -64,6 +82,52 @@ exports.protect = catchAsync(async (req, res, next) => {
   req.user = currentUser;
   next();
 });
+
+
+
+exports.sendLogginData = catchAsync(async (req, res, next) => {
+  if(!req.cookies.jwt)
+  {
+    next(new AppError("No token in cookie is Available"),400);
+
+  }
+
+  const decoded = await promisify(jwt.verify)(req.cookies.jwt, process.env.JWT_SECRETE);
+
+  const currentUser = await User.findById(decoded.id).select('-password -confirmPassword');
+
+  if (!currentUser) {
+    return next(new AppError("This user doesn't Exits",304));
+  }
+
+   res.status(200)
+   .json({
+     status:"success",
+     user :currentUser
+   })
+  
+
+});
+
+
+exports.createUser =   catchAsync(async (req, res) => {
+
+  // createreset Token
+
+  // Send Email with the token
+
+  const document = await User.create(req.body);
+  res.status(200).json({
+    status: "success",
+    document,
+  });
+});
+
+
+
+
+
+
 
 exports.restrictTo = (...roles) => {
   return (req, res, next) => {

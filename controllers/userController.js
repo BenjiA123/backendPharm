@@ -3,7 +3,6 @@ const catchAsync = require("../utils/catchAsync");
 
 const factory = require("./handlerFactory");
 
-exports.createUser = factory.createOne(User);
 
 exports.getAllUsers = factory.getAll(User);
 

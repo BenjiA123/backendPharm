@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const crypyo = require('crypto')
 
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
-    // If someone uses a space with the same username, It is allowed???
     required: [true, "You must have a username"],
     unique: [true, "This username is already taken"],
     lowercase: true,
@@ -21,14 +21,53 @@ const userSchema = new mongoose.Schema({
     unique: false,
   },
 
+  email:{
+    type:String,
+    unique : [true, "This username is already taken"],
+    required:[true,"Please fill in your email"]
+  },
+  phoneNumber:{
+    unique : [true, "This username is already taken"],
+    // Not Working
+    minlength:5,
+    type:Number,
+    required:[true,"Please fill in your phone number"]
+
+},
+  
+  gender:{
+    type: String,
+    required:[true,"Please fill in your Gender"],
+    enum: ["male", "female"],
+  },
+
+  dateOfBirth:{
+    type:Date,
+    required:[true,"Please fill in your Date of Birth"]
+
+  },
+
+
+
+
+
+
+
+
+
+
+
   password: {
     type: String,
     required: [true, "You need a password"],
     select: false,
+    default:"12345678"
   },
   confirmPassword: {
     type: String,
     required: [true, "Please confirm your Password"],
+    default:"12345678",
+
     validate: {
       validator: function (el) {
         return el === this.password;
@@ -41,17 +80,24 @@ const userSchema = new mongoose.Schema({
     default: "pharmacist",
     enum: ["MD", "pharmacist", "cachier"],
   },
+
+  token:
+{type:String},
+tokenExpires:{type:Date},
+
+
 });
 
 userSchema.index({ username: "text", name: "text" });
 
 userSchema.pre("save", async function (next) {
-  // this.username = this.username.split(" ").join("")
+  // this.password = "12345678"
+  // this.confirmPassword = "12345678"
 
   if (!this.isModified("password")) return next();
 
   this.password = await bcrypt.hash(this.password, 3);
-  this.confirmPassword = undefined;
+   this.confirmPassword = undefined;
   next();
 });
 
@@ -62,5 +108,22 @@ userSchema.methods.correctPassword = async function (
 ) {
   return await bcrypt.compare(candidatePassword, userPassword);
 };
+
+
+
+userSchema.methods.createToken = async function()
+{
+  const token = crypyo.randomBytes(32).toString('hex')
+
+    // This is not storing data in the database 
+    this.token = crypto
+    .createHash('sha256')
+    .update(token)
+    .digest('hex')
+    
+    this.tokenExpires = Date.now() + 10 *60*1000
+    // console.log("Token on database",this.token)
+    return token
+}
 const User = mongoose.model("User", userSchema);
 module.exports = User;
