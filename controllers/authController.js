@@ -2,8 +2,20 @@ const { promisify } = require("util");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 const User = require("../model/userModel");
+const crypto = require('crypto')
 
 const jwt = require("jsonwebtoken");
+
+
+
+const sgMail = require('@sendgrid/mail')
+sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+const Email = require('../utils/email')
+
+
+
+
+
 
 
 const createSendToken = (user, statusCode, res)=>{
@@ -49,8 +61,15 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError("Invalid username or password"), 401);
   }
 
+    // Meant to store loggin dates
+    user.loginDates.push(new Date(Date.now()))
+    await user.save({ validateBeforeSave: false });
+
+
   // I prevented the password from coming up in the response
   user.password =undefined
+  user.confirmPassword =undefined
+
   createSendToken(user,201,res)
 
 });
@@ -112,17 +131,74 @@ exports.sendLogginData = catchAsync(async (req, res, next) => {
 
 exports.createUser =   catchAsync(async (req, res) => {
 
+   // Create the user
+
+   const user = await User.create(req.body);
+  if(!user) return next(new AppError('No user  ', 404));
+
+// Get the email
+  const userEmail = req.body.email
+  if(!userEmail) return next(new AppError('No user email ', 404));
+
   // createreset Token
+  const resetToken = user.createToken();
+  await user.save({ validateBeforeSave: false });
 
-  // Send Email with the token
+  // Send Email with the token 
 
-  const document = await User.create(req.body);
-  res.status(200).json({
-    status: "success",
-    document,
-  });
+      // The token sent should serve an angular Page
+
+      const resetUrl = `${req.protocol}://${req.get('host')}/auth/create-password/${resetToken}`
+      try {
+        await new Email(user,resetUrl).sendWelcome()
+        res.status(200).json({
+          status:"success",
+          message:"Token has been sent to Your Email😊"
+        })
+      } catch (error) {
+        console.log(error)
+  
+        user.token = undefined;
+        user.tokenExpires = undefined;
+         user.save({ validateBeforeSave: false });
+        return next(
+          new AppError('Their was an error sending this email. Try again later', 500)
+        );
+        
+      }
+ 
+
+
 });
 
+exports.verifyCreatedUser = catchAsync(async(req,res,next)=>{
+  // Get token from params
+  const createToken = req.params.resetToken
+  const hashedToken = crypto.createHash('sha256').update(createToken).digest('hex');
+
+
+   // Compare token and Token Expires with the one in database
+  const user = await User.findOne({
+    token:hashedToken,
+    tokenExpires:{$gt:Date.now()}
+  })
+
+
+  if (!user) {
+    return next(new AppError('Token is Invalid or has expired', 400));
+  }
+  // Get password and Password Confirm from req.body
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  user.token = undefined;
+  user.tokenExpires = undefined;
+
+  await user.save();
+
+  // Log user in with JWT
+  createSendToken(user, 200, res);
+
+})
 
 
 
@@ -142,3 +218,24 @@ exports.restrictTo = (...roles) => {
     next();
   };
 };
+
+
+exports.logout = catchAsync(async (req,res,next)=>{
+
+
+  let user = new User
+   user = await User.findById(req.body.user._id)
+  
+  if(!user)return new AppError("No user was logged in",400)
+
+  res.cookie('jwt','logout',{
+    expires:new Date(Date.now()+10),
+    httpOnly:false
+  })
+      user.logoutDates.push(new Date(Date.now()))
+      
+      user.save({ validateBeforeSave: false });
+  res.status(200).json({
+    status:"success",
+  })
+})
