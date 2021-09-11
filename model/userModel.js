@@ -1,6 +1,6 @@
+const crypto = require('crypto')
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
-const crypyo = require('crypto')
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -51,8 +51,15 @@ const userSchema = new mongoose.Schema({
 
 
 
+  loginDates: {
+    type: [Date],
+    select: true,
+  },
 
-
+  logoutDates: {
+    type: [Date],
+    select: true,
+  },
 
 
 
@@ -113,7 +120,7 @@ userSchema.methods.correctPassword = async function (
 
 userSchema.methods.createToken = async function()
 {
-  const token = crypyo.randomBytes(32).toString('hex')
+  const token = crypto.randomBytes(32).toString('hex')
 
     // This is not storing data in the database 
     this.token = crypto
