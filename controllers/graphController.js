@@ -38,7 +38,7 @@ exports.transactionGraph = catchAsync(async(req,res,next)=>{
         {
             $group:
             {
-                _id:'$transactionDate',
+                _id:{$dayOfYear:'$transactionDate'},
                 numTran:{$sum:1},
             },           
         },

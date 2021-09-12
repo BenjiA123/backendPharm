@@ -46,6 +46,7 @@ exports.createCustomerPendingTransaction = catchAsync(async(req,res,next)=>{
         }
     }
     document.totalprice = totalPrice;
+    document.creator = req.user._id
 
     const createdTransaction = await Transaction.create(document);
 
