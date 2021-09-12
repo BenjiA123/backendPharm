@@ -8,6 +8,11 @@ userRouter.get("/get-logged-in-user",AuthController.sendLogginData)
 
 userRouter.get("/create-password/:resetToken",AuthController.verifyCreatedUser)
 
+userRouter.get("/:username",
+AuthController.protect,
+AuthController.restrictTo("MD"),
+UserController.getUserByUsername)
+
 userRouter.get(AuthController.protect, UserController.searchUsers);
 userRouter.post("/login", AuthController.login);
 userRouter.post("/logout",AuthController.protect, AuthController.logout);
