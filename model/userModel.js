@@ -92,6 +92,11 @@ const userSchema = new mongoose.Schema({
 {type:String},
 tokenExpires:{type:Date},
 
+active:{
+  type:Boolean,
+  required:true,
+  default:true
+},
 
 });
 
