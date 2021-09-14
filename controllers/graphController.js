@@ -24,10 +24,12 @@ exports.oneDrugGraph = catchAsync(async(req,res,next)=>{
 exports.transactionGraph = catchAsync(async(req,res,next)=>{
     // Get the current date and get data by filtering
     const {startDate,endDate}  = req.params
+    if(!startDate || !endDate) return new AppError("Please fill in the dates",400)
     // Get transactions 
     const graphData = await Transaction.aggregate([
         {
             // gets all transactions within a particular range
+            // This is not giving what i want
             $match:{
                 transactionDate:{
                     $gte:new Date(`${startDate}`),
@@ -38,7 +40,8 @@ exports.transactionGraph = catchAsync(async(req,res,next)=>{
         {
             $group:
             {
-                _id:{$dayOfYear:'$transactionDate'},
+                _id:{$dateToString:{format:"%Y-%m-%d",date:"$transactionDate"}},
+                // _id:{$dayOfYear:'$transactionDate'},
                 numTran:{$sum:1},
             },           
         },
@@ -47,7 +50,10 @@ exports.transactionGraph = catchAsync(async(req,res,next)=>{
         },
         {
             $project:{ _id:0}
-        },       
+        },   
+        {
+            $sort:{transactionDate:1}
+        }    
     ])
     // I can query Two Documents one by one, the result g=form the aggregatio 
     // Pipeline of one, gives me data for the other

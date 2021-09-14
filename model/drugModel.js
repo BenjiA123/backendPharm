@@ -35,7 +35,8 @@ const drugSchema = new mongoose.Schema(
     amount: {
       type: Number,
     },
-    sources: [{ type: mongoose.Schema.ObjectId, ref: "Source" }],
+    // Each time you create a drug, you have one sorurce
+    sources: { type: mongoose.Schema.ObjectId, ref: "Source" },
   },
   {
     toJSON: { virtuals: true },
