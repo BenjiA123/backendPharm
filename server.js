@@ -1,9 +1,7 @@
 const mongoose = require("mongoose");
 const port = process.env.PORT || 5000;
 const logger = require("./utils/logger");
-
 const dotenv = require("dotenv");
-
 dotenv.config({ path: "./config.env" });
 const app = require("./app");
 
@@ -20,20 +18,25 @@ mongoose
     logger.logError("Error : ", err);
   });
 
-const server = app.listen(port, () => {});
+const http = require("http");
+const server = http.createServer(app);
 
-// MD
-// {
-//     "username":"MD",
-//     "password":"1234567"
-// }
+const { Server } = require("socket.io");
+const io = new Server(server, {
+  cors: {
+    origin: ["http://127.0.0.1:4200", "http://localhost:4200"],
+    methods: ["GET", "POST"],
+    // allowedHeaders: ["my-custom-header"],
+    credentials: true,
+  },
+});
 
-// pharmacist
-// {
-//     "username":"akintpiio12",
-//     "password":"1234567"
-// }
+io.on("connection", (socket) => {
+  logger.logMessage("Socket Connection Established");
+  app.set("socket", socket);
+  // socket.disconnect(logger.logMessage("Socket is disconnected"));
+});
 
-// cachier
-// { "username":"cachier",
-//     "password":"1234567"}
+server.listen(port, () => {
+  logger.logMessage("listening on *:" + port);
+});

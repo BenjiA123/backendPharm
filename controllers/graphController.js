@@ -28,8 +28,6 @@ exports.transactionGraph = catchAsync(async(req,res,next)=>{
     // Get transactions 
     const graphData = await Transaction.aggregate([
         {
-            // gets all transactions within a particular range
-            // This is not giving what i want
             $match:{
                 transactionDate:{
                     $gte:new Date(`${startDate}`),
@@ -41,7 +39,6 @@ exports.transactionGraph = catchAsync(async(req,res,next)=>{
             $group:
             {
                 _id:{$dateToString:{format:"%Y-%m-%d",date:"$transactionDate"}},
-                // _id:{$dayOfYear:'$transactionDate'},
                 numTran:{$sum:1},
             },           
         },
@@ -79,9 +76,9 @@ exports.drugGraph = catchAsync(async(req,res,next)=>{
 exports.multipleDrugsOnOneGraph = catchAsync(async(req,res,next)=>{
     const {startDate,endDate}  = req.params
     const graphData = await Transaction.aggregate([
-        {
-            $unwind:'$drugs'
-        },
+        // {
+        //     $unwind:'$drugs'
+        // },
         {
             $match:{
                 transactionDate:{
@@ -94,20 +91,16 @@ exports.multipleDrugsOnOneGraph = catchAsync(async(req,res,next)=>{
             $group:
             {
                 _id:"$drugs",
-                numDrugs:{$sum:1},
-                transDate:{$push:"$transactionDate"}
+                // numDrugs:{$sum:1},
+                // transDate:{$push:"$transactionDate"}
             }
         },
-        {
-            $unwind:'$transDate'
-        },
-        // you may have to unwind the trans date
-        {
-            $addFields:{drugID:'$_id'}
-        },
-        {
-            $project:{ _id:0}
-        },
+        // {
+        //     $addFields:{drugID:'$_id'}
+        // },
+        // {
+        //     $project:{ _id:0}
+        // },
         // {
             // Match not working for ID using dates first and grouping by drugId
 
