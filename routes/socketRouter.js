@@ -10,6 +10,6 @@ socketRouter.use(
   AuthController.restrictTo("MD", "admin")
 );
 
-socketRouter.route("/").get(SocketController.searchSocket);
+// socketRouter.route("/").get(SocketController.searchSocket);
 
 module.exports = socketRouter;

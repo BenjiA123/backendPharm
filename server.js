@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
 const app = require("./app");
 
+const socketController = require("./controllers/socketController");
 mongoose
   .connect(process.env.LOCAL_DATABASE, {
     useNewUrlParser: true,
@@ -22,6 +23,7 @@ const http = require("http");
 const server = http.createServer(app);
 
 const { Server } = require("socket.io");
+const { search } = require("./controllers/handlerFactory");
 const io = new Server(server, {
   cors: {
     origin: ["http://127.0.0.1:4200", "http://localhost:4200"],
@@ -34,7 +36,11 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   logger.logMessage("Socket Connection Established");
   app.set("socket", socket);
-  // socket.disconnect(logger.logMessage("Socket is disconnected"));
+  socketController.socket(socket);
+
+  socket.on("disconnect", () => {
+    console.log("user disconnected");
+  });
 });
 
 server.listen(port, () => {
