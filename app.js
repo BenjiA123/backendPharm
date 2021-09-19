@@ -14,7 +14,7 @@ const drugRouter = require("./routes/drugRouter");
 const transRouter = require("./routes/transactionRouter");
 const sourceRouter = require("./routes/sourceRouter");
 
-const AppError = require("./utils/appError");
+const AppError = require("./utils/AppError");
 
 app.use("", express.static(path.join(__dirname, "public")));
 
