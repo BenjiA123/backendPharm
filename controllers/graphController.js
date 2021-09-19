@@ -1,5 +1,7 @@
 // Contain aggregate stuff for graphs
 
+const mongoose = require("mongoose");
+
 const Drug = require("../model/drugModel");
 const factory = require("./handlerFactory");
 const Transaction = require("../model/transactionModel");
@@ -11,11 +13,56 @@ exports.oneDrugGraph = catchAsync(async (req, res, next) => {
 
   //   Get the drug id
 
-  //   filter by the drug id
+  const drugId = req.body.drug;
+  if (!drugId) return next(new AppError("Please select a drug", 400));
+  const singleDrug = await Transaction.aggregate([
+    // Split the drug array
+    {
+      $unwind: "$drugs",
+    },
+    //   filter by the drug id
 
-  // group by date and count the results
+    {
+      $match: { "drugs.drug": mongoose.Types.ObjectId(drugId) },
+    },
 
-  res.send("One Drug Graph data");
+    // group by date and count the results
+
+    {
+      $group: {
+        _id: {
+          $dateToString: { format: "%Y-%m-%d", date: "$transactionDate" },
+        },
+        numTran: { $sum: 1 },
+      },
+    },
+    // {
+    //   $lookup: {
+    //     from: "Drug",
+    //     // localField: "numTran",
+    //     // foreignField: "genericName",
+    //     as: "inventory_docs",
+    //   },
+    // },
+    {
+      $addFields: { transactionDate: "$_id" },
+    },
+
+    {
+      $project: { _id: 0 },
+    },
+    {
+      $sort: { transactionDate: 1 },
+    },
+  ]);
+
+  res.status(200).json({
+    status: "success",
+    transStat: {
+      result: singleDrug.length,
+      singleDrug,
+    },
+  });
 });
 
 exports.transactionGraph = catchAsync(async (req, res, next) => {
@@ -117,7 +164,7 @@ exports.multipleDrugsOnOneGraph = catchAsync(async (req, res, next) => {
     // },
 
     // {
-    //   $match: { drugs: "60a3615e1a56ca1accf24c57" },
+    //   $match: { _id: mongoose.Types.ObjectId(drugId) },
     // },
     // At this stage there are multiple drugs for multiple dates
 

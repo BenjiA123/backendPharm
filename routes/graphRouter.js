@@ -20,6 +20,8 @@ graphRouter
   .route("/drug/multiple/:startDate/:endDate")
   .post(GraphController.multipleDrugsOnOneGraph);
 graphRouter.route("/drug/amount").get(GraphController.drugsVsAmount);
-graphRouter.route("/drug/:drugId").get(GraphController.oneDrugGraph);
+graphRouter
+  .route("/transaction/drug/:startDate/:endDate")
+  .post(GraphController.oneDrugGraph);
 
 module.exports = graphRouter;
