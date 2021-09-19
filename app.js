@@ -1,5 +1,7 @@
 const express = require("express");
 const app = express();
+const path = require("path");
+
 var cors = require("cors");
 const cookieParser = require("cookie-parser");
 
@@ -11,9 +13,10 @@ const graphRouter = require("./routes/graphRouter");
 const drugRouter = require("./routes/drugRouter");
 const transRouter = require("./routes/transactionRouter");
 const sourceRouter = require("./routes/sourceRouter");
-const socket = require("socket.io");
 
 const AppError = require("./utils/appError");
+
+app.use("", express.static(path.join(__dirname, "public")));
 
 app.use(express.json({ limit: "10kb" }));
 app.use(cookieParser());
