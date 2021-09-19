@@ -21,7 +21,7 @@ if(!token) return next(new AppError("Their was no token sent",400))
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
     secure: req.secure || req.headers['x-forwarded-proto'] == 'https',
-    httpOnly: true,
+    httpOnly: false,
   };
 
   // if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
