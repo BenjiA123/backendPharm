@@ -1,3 +1,9 @@
+process.on("uncaughtException", (err) => {
+  console.log("UNCAUGHT EXCEPTION  Exiting...😢😢😢");
+  console.log(err.name, err.message, err);
+  process.exit(1);
+});
+
 const mongoose = require("mongoose");
 const port = process.env.PORT || 5000;
 const logger = require("./utils/logger");
@@ -6,8 +12,17 @@ dotenv.config({ path: "./config.env" });
 const app = require("./app");
 
 const socketController = require("./controllers/socketController");
+
+// if (process.env.NODE_ENV == "production") {
+const DB = process.env.ONLINE_DATABASE.replace(
+  "<PASSWORD>",
+  process.env.DATABASE_PASSWORD
+);
+// }
+
 mongoose
-  .connect(process.env.LOCAL_DATABASE, {
+  // LOCAL_DATABASE
+  .connect(DB, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -43,6 +58,14 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(port, () => {
+const serverDetail = server.listen(port, () => {
   logger.logMessage("listening on *:" + port);
+});
+
+process.on("unhandledRejection", (err) => {
+  console.log(err.name, err.message, err);
+  console.log("UNHANDLED REJECTION Shutting DOWn...👌👌😒");
+  serverDetail.close(() => {
+    process.exit(1);
+  });
 });
