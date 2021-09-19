@@ -16,6 +16,8 @@ const sourceRouter = require("./routes/sourceRouter");
 
 const AppError = require("./utils/AppError");
 
+app.enable("trust proxy");
+
 app.use("", express.static(path.join(__dirname, "public")));
 
 app.use(express.json({ limit: "10kb" }));

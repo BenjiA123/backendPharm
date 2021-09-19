@@ -9,19 +9,23 @@ const jwt = require("jsonwebtoken");
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const Email = require("../utils/email");
-const { findByIdAndDelete } = require("../model/userModel");
 
-const createSendToken = (user, statusCode, res) => {
+const createSendToken = (user, statusCode, req, res,next) => {
   const token = signToken(user._id);
+
+if(!token) return next(new AppError("Their was no token sent",400))
+
+
   const cookieOptions = {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
-    secure: false,
-    httpOnly: false,
+    secure: req.secure || req.headers['x-forwarded-proto'] == 'https',
+    httpOnly: true,
   };
 
-  if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
+  // if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
+  // if (req.secure || req.headers['x-forwarded-proto'] == 'https') cookieOptions.secure = true;
   res.cookie("jwt", token, cookieOptions);
 
   res.status(statusCode).json({
@@ -64,7 +68,7 @@ exports.login = catchAsync(async (req, res, next) => {
   user.password = undefined;
   user.confirmPassword = undefined;
 
-  createSendToken(user, 201, res);
+  createSendToken(user, 201, req,res,next);
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -183,7 +187,7 @@ exports.verifyCreatedUserAndCreatePassword = catchAsync(
     if (!user) {
       // If the token has expired of theeir is no user or no token delete this user
       // This gives a little error in development
-      await findByIdAndDelete(user._id)
+      await User.findByIdAndDelete(user._id)
       delete user
       return next(new AppError("Token is Invalid or has expired, contact your MD to recreate your account", 400));
     }
@@ -198,7 +202,7 @@ exports.verifyCreatedUserAndCreatePassword = catchAsync(
     await user.save();
 
     // Log user in with JWT
-    createSendToken(user, 200, res);
+    createSendToken(user, 200, req, res,next);
   }
 );
 
