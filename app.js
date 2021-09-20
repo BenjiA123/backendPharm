@@ -44,7 +44,11 @@ app.use("/api", limiter);
 
 app.use(
   cors({
-    origin: ["http://127.0.0.1:4200", "http://localhost:4200"],
+    origin: [
+      "http://127.0.0.1:4200",
+      "http://localhost:4200",
+      "https://gileadpharmacy.herokuapp.com",
+    ],
     credentials: true,
   })
 );
@@ -52,7 +56,11 @@ app.use(
 app.options(
   "*",
   cors({
-    origin: ["http://127.0.0.1:4200", "http://localhost:4200"],
+    origin: [
+      "http://127.0.0.1:4200",
+      "http://localhost:4200",
+      "https://gileadpharmacy.herokuapp.com",
+    ],
   })
 );
 

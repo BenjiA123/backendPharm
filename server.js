@@ -42,7 +42,11 @@ const { Server } = require("socket.io");
 const { search } = require("./controllers/handlerFactory");
 const io = new Server(server, {
   cors: {
-    origin: ["http://127.0.0.1:4200", "http://localhost:4200"],
+    origin: [
+      "http://127.0.0.1:4200",
+      "http://localhost:4200",
+      "https://gileadpharmacy.herokuapp.com",
+    ],
     methods: ["GET", "POST"],
     // allowedHeaders: ["my-custom-header"],
     credentials: true,
