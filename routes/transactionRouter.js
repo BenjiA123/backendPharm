@@ -16,13 +16,13 @@ transRouter
     TransactionController.createCustomerPendingTransaction
   );
 
-  transRouter
+transRouter
   .route("/approve/:transactionId")
-  .post(
+  .get(
     AuthController.protect,
     AuthController.restrictTo("MD", "cachier"),
     TransactionController.createApprovedTransaction
-    )
+  );
 
 transRouter
   .route("/:id")
@@ -37,7 +37,6 @@ transRouter
     TransactionController.updateTransaction
   )
   .delete(
-
     AuthController.protect,
     AuthController.restrictTo("MD"),
     TransactionController.deleteTransaction

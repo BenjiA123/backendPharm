@@ -2,19 +2,7 @@ const crypto = require("crypto");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
-const userSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    required: [true, "You must have a username"],
-    unique: [true, "This username is already taken"],
-    lowercase: true,
-    validate: {
-      validator: function (el) {
-        return el === el.split(" ").join("");
-      },
-      message: "No spaces are allowed",
-    },
-  },
+const customerSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, "Please Tell Us Your Name"],
@@ -55,7 +43,10 @@ const userSchema = new mongoose.Schema({
     select: true,
   },
 
-  // address,
+  address: {
+    type: String,
+    required: [true, "Please input an address"],
+  },
 
   password: {
     type: String,
@@ -77,8 +68,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    default: "pharmacist",
-    enum: ["MD", "pharmacist", "cachier", "administrator", "customer"],
+    default: "customer",
   },
 
   token: { type: String },
@@ -91,12 +81,9 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-userSchema.index({ username: "text", name: "text" });
+customerSchema.index({ name: "text" });
 
-userSchema.pre("save", async function (next) {
-  // this.password = "12345678"
-  // this.confirmPassword = "12345678"
-
+customerSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
 
   this.password = await bcrypt.hash(this.password, 3);
@@ -104,20 +91,19 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-userSchema.methods.correctPassword = async function (
+customerSchema.methods.correctPassword = async function (
   candidatePassword,
   userPassword
 ) {
   return await bcrypt.compare(candidatePassword, userPassword);
 };
 
-userSchema.methods.createToken = async function () {
+customerSchema.methods.createToken = async function () {
   const token = crypto.randomBytes(32).toString("hex");
   this.token = crypto.createHash("sha256").update(token).digest("hex");
 
   this.tokenExpires = Date.now() + 10 * 60 * 1000;
-  // console.log("Token on database",this.token)
   return token;
 };
-const User = mongoose.model("User", userSchema);
-module.exports = User;
+const Customer = mongoose.model("Customer", customerSchema);
+module.exports = Customer;
