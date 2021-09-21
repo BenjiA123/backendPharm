@@ -9,25 +9,27 @@ const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
 
 exports.oneDrugGraph = catchAsync(async (req, res, next) => {
-  // The graph should contain the amount of transactions on a particular drug wrt the time period
+  const drugId = req.params.drugId;
+  const { startDate, endDate } = req.params;
+  if (!startDate || !endDate)
+    return new AppError("Please fill in the dates", 400);
 
-  //   Get the drug id
-
-  const drugId = req.body.drug;
   if (!drugId) return next(new AppError("Please select a drug", 400));
   const singleDrug = await Transaction.aggregate([
-    // Split the drug array
+    {
+      $match: {
+        transactionDate: {
+          $gte: new Date(`${startDate}`),
+          $lte: new Date(`${endDate}`),
+        },
+      },
+    },
     {
       $unwind: "$drugs",
     },
-    //   filter by the drug id
-
     {
       $match: { "drugs.drug": mongoose.Types.ObjectId(drugId) },
     },
-
-    // group by date and count the results
-
     {
       $group: {
         _id: {
@@ -36,14 +38,6 @@ exports.oneDrugGraph = catchAsync(async (req, res, next) => {
         numTran: { $sum: 1 },
       },
     },
-    // {
-    //   $lookup: {
-    //     from: "Drug",
-    //     // localField: "numTran",
-    //     // foreignField: "genericName",
-    //     as: "inventory_docs",
-    //   },
-    // },
     {
       $addFields: { transactionDate: "$_id" },
     },
@@ -55,11 +49,12 @@ exports.oneDrugGraph = catchAsync(async (req, res, next) => {
       $sort: { transactionDate: 1 },
     },
   ]);
+  console.log(singleDrug);
 
   res.status(200).json({
     status: "success",
+    result: singleDrug.length,
     transStat: {
-      result: singleDrug.length,
       singleDrug,
     },
   });

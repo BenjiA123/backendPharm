@@ -98,6 +98,14 @@ exports.createApprovedTransaction = catchAsync(async (req, res, next) => {
       new AppError("The Cachier Or MD needs to Approve this transaction", 400)
     );
 
+  const checkTransStatus = await Transaction.findById(transId).lean().exec();
+  if (checkTransStatus.approved)
+    return next(
+      new AppError(
+        `This transaction has been approved by ${checkTransStatus.approver.name}`,
+        400
+      )
+    );
   // I have to do this twice for this to work
 
   const approvedTrans = await Transaction.findByIdAndUpdate(transId, {

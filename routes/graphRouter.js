@@ -21,7 +21,7 @@ graphRouter
   .post(GraphController.multipleDrugsOnOneGraph);
 graphRouter.route("/drug/amount").get(GraphController.drugsVsAmount);
 graphRouter
-  .route("/transaction/drug/:startDate/:endDate")
-  .post(GraphController.oneDrugGraph);
+  .route("/transaction/drug/:startDate/:endDate/:drugId")
+  .get(GraphController.oneDrugGraph);
 
 module.exports = graphRouter;

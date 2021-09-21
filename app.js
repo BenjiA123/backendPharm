@@ -22,6 +22,8 @@ const sourceRouter = require("./routes/sourceRouter");
 
 const AppError = require("./utils/AppError");
 
+app.use("", express.static(path.join(__dirname, "public")));
+
 app.use(helmet());
 app.use(mongoSanitize());
 app.use(xss());
@@ -29,9 +31,9 @@ app.use(hpp());
 
 app.enable("trust proxy");
 
-app.use("", express.static(path.join(__dirname, "public")));
-
 app.use(express.json({ limit: "10kb" }));
+app.use(express.urlencoded({ extended: true, limit: "10kb" }));
+
 app.use(cookieParser());
 
 const limiter = rateLimit({
@@ -61,6 +63,7 @@ app.options(
       "http://localhost:4200",
       "https://gileadpharmacy.herokuapp.com",
     ],
+    credentials: true,
   })
 );
 
