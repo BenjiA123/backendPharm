@@ -10,11 +10,17 @@ const AppError = require("../utils/AppError");
 
 exports.oneDrugGraph = catchAsync(async (req, res, next) => {
   const drugId = req.params.drugId;
+
+  if (!drugId) return next(new AppError("Please select a drug", 400));
+
+  const drug = await Drug.findById(drugId).lean().exec();
+
+  if (!drug) return next(new AppError("This drug does not exist ", 400));
+
   const { startDate, endDate } = req.params;
   if (!startDate || !endDate)
     return new AppError("Please fill in the dates", 400);
 
-  if (!drugId) return next(new AppError("Please select a drug", 400));
   const singleDrug = await Transaction.aggregate([
     {
       $match: {
@@ -49,11 +55,11 @@ exports.oneDrugGraph = catchAsync(async (req, res, next) => {
       $sort: { transactionDate: 1 },
     },
   ]);
-  console.log(singleDrug);
 
   res.status(200).json({
     status: "success",
     result: singleDrug.length,
+    drugName: drug.genericName,
     transStat: {
       singleDrug,
     },
@@ -150,13 +156,13 @@ exports.multipleDrugsOnOneGraph = catchAsync(async (req, res, next) => {
       $sort: { date: 1 },
     },
 
-    // {
-    //   $group: {
-    //     _id: "$drugs",
-    //     numTran: { $sum: 1 },
-    //     date: { $push: "$date" },
-    //   },
-    // },
+    {
+      $group: {
+        _id: "$drugs",
+        numTran: { $sum: 1 },
+        date: { $push: "$date" },
+      },
+    },
 
     // {
     //   $match: { _id: mongoose.Types.ObjectId(drugId) },
@@ -164,7 +170,7 @@ exports.multipleDrugsOnOneGraph = catchAsync(async (req, res, next) => {
     // At this stage there are multiple drugs for multiple dates
 
     // {
-    //   $addFields: { drugID: "$_id" },
+    //   $addFields: { date: "$date[0]" },
     // },
     {
       $project: { _id: 0 },
