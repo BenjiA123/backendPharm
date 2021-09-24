@@ -1,5 +1,6 @@
 const catchAsync = require("../utils/catchAsync");
 const Drug = require("../model/drugModel");
+const Source = require("../model/sourceModel");
 
 const APIFeatures = require("../utils/apiFeatures");
 
@@ -17,7 +18,7 @@ const APIFeatures = require("../utils/apiFeatures");
 
 exports.socket = function (socket) {
   socket.on(
-    "search",
+    "searchDrug",
     catchAsync(async function (searchData) {
       const obj = {
         sort: "genericName",
@@ -29,7 +30,16 @@ exports.socket = function (socket) {
 
       const drugs = await features.query;
 
-      socket.emit("searchResult", drugs);
+      socket.emit("drugSearchResult", drugs);
+    })
+  );
+
+  socket.on(
+    "getSources",
+    catchAsync(async function () {
+      const sources = await Source.find();
+
+      socket.emit("sourceResult", sources);
     })
   );
 };

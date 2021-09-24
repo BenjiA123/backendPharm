@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const path = require("path");
 const helmet = require("helmet");
+const csurf = require("csurf");
 
 const rateLimit = require("express-rate-limit");
 
@@ -22,19 +23,22 @@ const sourceRouter = require("./routes/sourceRouter");
 
 const AppError = require("./utils/AppError");
 
-app.use("", express.static(path.join(__dirname, "public")));
-
 app.use(helmet());
 app.use(mongoSanitize());
 app.use(xss());
 app.use(hpp());
 
+const csrfMiddleware = csurf({
+  cookie: true,
+});
+
 app.enable("trust proxy");
 
 app.use(express.json({ limit: "10kb" }));
-app.use(express.urlencoded({ extended: true, limit: "10kb" }));
+app.use(express.urlencoded({ extended: false, limit: "10kb" }));
 
 app.use(cookieParser());
+// app.use(csrfMiddleware);
 
 const limiter = rateLimit({
   max: 100,
@@ -66,6 +70,7 @@ app.options(
     credentials: true,
   })
 );
+app.use("", express.static(path.join(__dirname, "public")));
 
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/socket", socketRouter);

@@ -45,4 +45,6 @@ userRouter
   .patch(UserController.updateUser)
   .delete(UserController.deleteUser);
 
+userRouter.delete("/inactivate/:userId", UserController.inactivateUser);
+
 module.exports = userRouter;

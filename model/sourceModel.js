@@ -14,13 +14,16 @@ const sourceSchema = mongoose.Schema({
     required: [true, "Please Input The purchase date"],
   },
   // When creating a vendor, do you need drugs?????
-  // drugs:[
-  //   { drug:{type:mongoose.Schema.ObjectId,ref:"Drug", required:[true,"Drugs is Required for a source"]},
-  //   quantity:{type:Number}
-  
-  // },
-
-  // ]
+  drugs: [
+    {
+      drugId: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Drug",
+        required: [true, "Drugs is Required for a source"],
+      },
+      quantity: { type: Number },
+    },
+  ],
 });
 sourceSchema.index({ name: "text" });
 

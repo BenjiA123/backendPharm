@@ -93,6 +93,11 @@ const userSchema = new mongoose.Schema({
 
 userSchema.index({ username: "text", name: "text" });
 
+userSchema.pre(/^find/, async function (next) {
+  this.find({ active: { $ne: false } });
+  next();
+});
+
 userSchema.pre("save", async function (next) {
   // this.password = "12345678"
   // this.confirmPassword = "12345678"

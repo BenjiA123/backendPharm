@@ -119,12 +119,15 @@ exports.drugGraph = catchAsync(async (req, res, next) => {
 
 exports.multipleDrugsOnOneGraph = catchAsync(async (req, res, next) => {
   // This is meant to be by trans NOTE
-  console.log(req.body.drugs);
+  const drugs = req.body.drugs;
+
+  let newDrugs = drugs.map((s) => mongoose.Types.ObjectId(s));
+
   const { startDate, endDate } = req.params;
   const graphData = await Transaction.aggregate([
-    {
-      $unwind: "$drugs",
-    },
+    // {
+    //   $unwind: "$drugs",
+    // },
 
     {
       $match: {
@@ -134,58 +137,79 @@ exports.multipleDrugsOnOneGraph = catchAsync(async (req, res, next) => {
         },
       },
     },
-
     {
-      $group: {
-        _id: {
-          $dateToString: { format: "%Y-%m-%d", date: "$transactionDate" },
+      $match: {
+        "drugs.drug": {
+          $in: newDrugs,
         },
-
-        drugs: { $push: "$drugs" },
-      },
-    },
-
-    {
-      $addFields: { date: "$_id" },
-    },
-
-    {
-      $unwind: "$drugs",
-    },
-    {
-      $sort: { date: 1 },
-    },
-
-    {
-      $group: {
-        _id: "$drugs",
-        numTran: { $sum: 1 },
-        date: { $push: "$date" },
       },
     },
 
     // {
-    //   $match: { _id: mongoose.Types.ObjectId(drugId) },
+    //   $project: {
+    //     test: {
+    //       $filter: {
+    //         input: req.body.drugs,
+    //         as: "num",
+    //         cond: {
+    //           "$$drugs.drug": { $in: req.body.drugs },
+    //         },
+    //       },
+    //     },
+    //   },
     // },
-    // At this stage there are multiple drugs for multiple dates
 
     // {
-    //   $addFields: { date: "$date[0]" },
+    //   $group: {
+    //     _id: {
+    //       $dateToString: { format: "%Y-%m-%d", date: "$transactionDate" },
+    //     },
+
+    //     drugs: { $push: "$drugs" },
+    //   },
     // },
-    {
-      $project: { _id: 0 },
-    },
+
     // {
-    //     // Lookup the drugs Model and get the name of the drug
-    //     $lookup:{}
+    //   $addFields: { date: "$_id" },
+    // },
+
+    // {
+    //   $unwind: "$drugs",
     // },
     // {
-    // // Match not working for ID using dates first and grouping by drugId
-    // $match:
+    //   $sort: { date: 1 },
+    // },
+
     // {
-    //     drugs:drugId
-    // }
-    // }
+    //   $group: {
+    //     _id: "$drugs",
+    //     numTran: { $sum: 1 },
+    //     date: { $push: "$date" },
+    //   },
+    // },
+
+    // // {
+    // //   $match: { _id: mongoose.Types.ObjectId(drugId) },
+    // // },
+    // // At this stage there are multiple drugs for multiple dates
+
+    // // {
+    // //   $addFields: { date: "$date[0]" },
+    // // },
+    // {
+    //   $project: { _id: 0 },
+    // },
+    // // {
+    // //     // Lookup the drugs Model and get the name of the drug
+    // //     $lookup:{}
+    // // },
+    // // {
+    // // // Match not working for ID using dates first and grouping by drugId
+    // // $match:
+    // // {
+    // //     drugs:drugId
+    // // }
+    // // }
   ]);
 
   res.status(200).json({

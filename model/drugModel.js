@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const mongooseFuzzySearching = require('mongoose-fuzzy-searching')
+const mongooseFuzzySearching = require("mongoose-fuzzy-searching");
 const drugSchema = new mongoose.Schema(
   {
     genericName: {
@@ -36,7 +36,11 @@ const drugSchema = new mongoose.Schema(
       type: Number,
     },
     // Each time you create a drug, you have one sorurce
-    // sources: { type: mongoose.Schema.ObjectId, ref: "Source" },
+    sources: {
+      type: mongoose.Schema.ObjectId,
+      ref: "Source",
+      required: [true, "Every drug needs a source"],
+    },
   },
   {
     toJSON: { virtuals: true },
@@ -67,10 +71,10 @@ drugSchema.virtual("available").get(function () {
 });
 
 drugSchema.virtual("expired").get(function () {
-  return this.expiryDate - Date.now() < 0
+  return this.expiryDate - Date.now() < 0;
 });
 
-drugSchema.plugin(mongooseFuzzySearching, { fields: ['genericName'] })
+drugSchema.plugin(mongooseFuzzySearching, { fields: ["genericName"] });
 
 const Drug = mongoose.model("Drug", drugSchema);
 
