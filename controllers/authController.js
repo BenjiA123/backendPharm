@@ -134,7 +134,7 @@ exports.createUser = catchAsync(async (req, res, next) => {
   if (!userEmail) return next(new AppError("No user email ", 404));
 
   // createreset Token
-  const resetToken = user.createToken();
+  const resetToken = await user.createToken();
   await user.save({ validateBeforeSave: false });
 
   // Send Email with the token
@@ -143,7 +143,7 @@ exports.createUser = catchAsync(async (req, res, next) => {
 
   const resetUrl = `${req.protocol}://${req.get(
     "host"
-  )}/auth/create-password/${resetToken}`;
+  )}/#/auth/create-password/${resetToken}`;
   try {
     await new Email(user, resetUrl).sendWelcome();
     res.status(200).json({

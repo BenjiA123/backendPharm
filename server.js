@@ -23,7 +23,7 @@ const DB = process.env.ONLINE_DATABASE.replace(
 mongoose
   // LOCAL_DATABASE
   // DB
-  .connect(DB, {
+  .connect(process.env.LOCAL_DATABASE, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -55,6 +55,7 @@ const io = new Server(server, {
 
 io.on("connection", (socket) => {
   logger.logMessage("Socket Connection Established");
+  // I can pass req,res,next here
   app.set("socket", socket);
   socketController.socket(socket);
 

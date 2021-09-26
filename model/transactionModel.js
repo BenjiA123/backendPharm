@@ -16,6 +16,12 @@ const transSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    paymentMethod: {
+      type: String,
+      default: "cash",
+      enum: ["POS", "cash", "transfer"],
+      required: [true, "Payment mwthod is required"],
+    },
 
     drugs: [
       {
