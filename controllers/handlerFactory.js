@@ -41,7 +41,7 @@ exports.getAll = (Model, filterOptions) =>
 
 exports.getOne = (Model, options) =>
   catchAsync(async (req, res, next) => {
-    const document = await Model.findById(req.params.id);
+    const document = await Model.findById(req.params.id).select("+sources");
     if (!document) {
       return next(new AppError("document Not Found with This Id", 404));
     }
@@ -97,7 +97,7 @@ exports.deleteOne = (Model) =>
   });
 
 exports.stats = (Model) =>
-  catchAsync(async (req, res,next) => {
+  catchAsync(async (req, res, next) => {
     const stats = await Model.aggregate([
       {
         $group: {

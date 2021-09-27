@@ -5,6 +5,8 @@ const AuthController = require("../controllers/authController");
 
 userRouter.get("/get-logged-in-user", AuthController.sendLogginData);
 
+userRouter.post("/customer", AuthController.createUser);
+
 userRouter.post(
   "/create-password/:resetToken",
   AuthController.verifyCreatedUserAndCreatePassword

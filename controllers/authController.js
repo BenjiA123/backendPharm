@@ -54,7 +54,8 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError("Please Inpunt an username and password"), 400);
   }
 
-  const user = await User.findOne({ username: username }).select("+password");
+  let user = await User.findOne({ username: username }).select("+password");
+  if(!user)  user = await User.findOne({email:username}).select("+password")
 
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError("Invalid username or password"), 401);
@@ -125,7 +126,6 @@ exports.sendLogginData = catchAsync(async (req, res, next) => {
 exports.createUser = catchAsync(async (req, res, next) => {
 
   // Create the user
-
   const user = await User.create(req.body);
   if (!user) return next(new AppError("No user  ", 404));
 
@@ -195,6 +195,7 @@ exports.verifyCreatedUserAndCreatePassword = catchAsync(
       
       if(req.body.password != req.body.passwordConfirm) return next(new AppError("Password and Password confirm must be the same", 400));
     user.password = req.body.password;
+    user.verified = true;
     user.passwordConfirm = req.body.passwordConfirm;
     user.token = undefined;
     user.tokenExpires = undefined;

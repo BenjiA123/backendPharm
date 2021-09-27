@@ -26,6 +26,11 @@ const userSchema = new mongoose.Schema({
     unique: [true, "This email is already taken"],
     required: [true, "Please fill in your email"],
   },
+  verified: {
+    type: Boolean,
+    default: false,
+    required: true,
+  },
   phoneNumber: {
     unique: [true, "This phone number is already taken"],
     // Not Working
@@ -43,6 +48,14 @@ const userSchema = new mongoose.Schema({
   dateOfBirth: {
     type: Date,
     required: [true, "Please fill in your Date of Birth"],
+
+    // You must be at least 18 to create an account
+    validate: {
+      validator: function (el) {
+        return el > new Date(Date.now() - 3999999999999999);
+      },
+      message: "You are too young to register here!!",
+    },
   },
 
   loginDates: {
@@ -77,7 +90,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    default: "pharmacist",
+    default: "customer",
     enum: ["MD", "pharmacist", "cachier", "administrator", "customer"],
   },
 
