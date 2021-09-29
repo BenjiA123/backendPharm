@@ -2,13 +2,12 @@ const express = require("express");
 
 const AuthController = require("../controllers/authController");
 const DrugController = require("../controllers/drugController");
+const ImageController = require("../controllers/imageController");
 const drugRouter = express.Router();
 
-
-
-drugRouter.route("/search").get((AuthController.protect,DrugController.searchDrug));
-
-
+drugRouter
+  .route("/search")
+  .get((AuthController.protect, DrugController.searchDrug));
 
 drugRouter
   .route("/get-drug-stats")
@@ -78,11 +77,16 @@ drugRouter
     AuthController.restrictTo("MD", "pharmacist"),
     DrugController.getDrug
   )
+  .patch(
+    AuthController.protect,
+    AuthController.restrictTo("MD", "pharmacist"),
+    ImageController.uploadDrugPhoto,
+    DrugController.upDateDrug
+  )
   .delete(
     AuthController.protect,
     AuthController.restrictTo("MD"),
     DrugController.deleteDrug
   );
-
 
 module.exports = drugRouter;

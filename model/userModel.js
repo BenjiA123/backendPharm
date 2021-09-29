@@ -20,7 +20,6 @@ const userSchema = new mongoose.Schema({
     required: [true, "Please Tell Us Your Name"],
     unique: false,
   },
-
   email: {
     type: String,
     unique: [true, "This email is already taken"],
@@ -68,7 +67,7 @@ const userSchema = new mongoose.Schema({
     select: true,
   },
 
-  // address,
+  address: { type: String, required: true, default: "Fix this later" },
 
   password: {
     type: String,
@@ -91,7 +90,14 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     default: "customer",
-    enum: ["MD", "pharmacist", "cachier", "administrator", "customer"],
+    enum: [
+      "MD",
+      "pharmacist",
+      "cachier",
+      "administrator",
+      "customer",
+      "dispatch-rider",
+    ],
   },
 
   token: { type: String },

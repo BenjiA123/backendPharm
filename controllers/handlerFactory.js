@@ -64,6 +64,8 @@ exports.createOne = (Model) =>
 
 exports.updateOne = (Model) =>
   catchAsync(async (req, res, next) => {
+    if (req.file) req.body.drugImage = req.file.filename;
+
     const document = await Model.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       // Permits validators to update Documents

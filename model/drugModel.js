@@ -32,6 +32,12 @@ const drugSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+
+    drugImage: {
+      type: String,
+      required: true,
+      default: "default.jpg",
+    },
     amount: {
       type: Number,
     },

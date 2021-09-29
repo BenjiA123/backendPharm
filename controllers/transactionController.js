@@ -94,6 +94,7 @@ exports.createApprovedTransaction = catchAsync(async (req, res, next) => {
   if (!transId)
     return next(new AppError("This Transaction hasn't been created", 400));
   if (!approver)
+    //This doesnt check if it is the cachier or md
     return next(
       new AppError("The Cachier Or MD needs to Approve this transaction", 400)
     );

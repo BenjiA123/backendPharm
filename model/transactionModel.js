@@ -42,6 +42,10 @@ const transSchema = new mongoose.Schema(
       ref: "User",
       required: [true, "A creator is Required"],
     },
+    deleted: {
+      type: Boolean,
+      default: false,
+    },
     approver: {
       type: mongoose.Schema.ObjectId,
       ref: "User",

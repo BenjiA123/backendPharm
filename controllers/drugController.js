@@ -24,22 +24,21 @@ exports.almostExpired = factory.getAll(Drug, {
 exports.getAllDrugs = factory.getAll(Drug);
 
 exports.saveNewDrug = factory.createOne(Drug);
+exports.upDateDrug = factory.updateOne(Drug);
 
 exports.getDrug = factory.getOne(Drug);
 
-exports.searchDrug =catchAsync(async (req, res, next) => {
-    let searchQuery = req.query.q;
+exports.searchDrug = catchAsync(async (req, res, next) => {
+  let searchQuery = req.query.q;
 
-    const search = await Drug.fuzzySearch(searchQuery);
-    res.status(200).json({
-      result: search.length,
-      document: {
-        data: search,
-      },
-    });
+  const search = await Drug.fuzzySearch(searchQuery);
+  res.status(200).json({
+    result: search.length,
+    document: {
+      data: search,
+    },
   });
-
-
+});
 
 // Bulk Editing should be possible
 exports.deleteDrug = factory.deleteOne(Drug);
