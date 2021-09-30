@@ -26,7 +26,7 @@ module.exports = class Email {
   async sendWelcome() {
     await this.send(
       "<h1>Welcome</h1>",
-      "Welcome to the Gilead Pharm House Family Please Click The Link To Verify Your Account"
+      "Welcome to the Gilead Pharmacy Please Click The Link To Verify Your Account"
     );
   }
 };

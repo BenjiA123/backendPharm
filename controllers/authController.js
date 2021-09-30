@@ -169,7 +169,7 @@ exports.verifyCreatedUserAndCreatePassword = catchAsync(
   async (req, res, next) => {
 
 
-    if(!req.body.password || !req.body.passwordConfirm) return next(new AppError("Please fill the required fields", 400));
+    if(!req.body.password || !req.body.confirmPassword) return next(new AppError("Please fill the required fields", 400));
 
     // Get token from params
     const createToken = req.params.resetToken;
@@ -187,16 +187,16 @@ exports.verifyCreatedUserAndCreatePassword = catchAsync(
     if (!user) {
       // If the token has expired of theeir is no user or no token delete this user
       // This gives a little error in development
-      await User.findByIdAndDelete(user._id)
+      // await User.findByIdAndDelete(user._id)
       delete user
-      return next(new AppError("Token is Invalid or has expired, contact your MD to recreate your account", 400));
+      return next(new AppError("Token is Invalid or has expired, contact your MD", 400));
     }
     // Get password and Password Confirm from req.body
       
-      if(req.body.password != req.body.passwordConfirm) return next(new AppError("Password and Password confirm must be the same", 400));
+      if(req.body.password != req.body.confirmPassword) return next(new AppError("Password and Password confirm must be the same", 400));
+      user.confirmPassword = req.body.confirmPassword;
     user.password = req.body.password;
     user.verified = true;
-    user.passwordConfirm = req.body.passwordConfirm;
     user.token = undefined;
     user.tokenExpires = undefined;
 
