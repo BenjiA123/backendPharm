@@ -1,11 +1,9 @@
 const express = require("express");
 const SourceController = require("../controllers/sourceController");
 const AuthController = require("../controllers/authController");
-sourceRouter = express.Router();
+const sourceRouter = express.Router();
 
-sourceRouter
-  .route("/search")
-  .get( SourceController.searchSources);
+sourceRouter.route("/search").get(SourceController.searchSources);
 
 sourceRouter
   .route("/")

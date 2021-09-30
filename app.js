@@ -21,6 +21,7 @@ const drugRouter = require("./routes/drugRouter");
 const transRouter = require("./routes/transactionRouter");
 const sourceRouter = require("./routes/sourceRouter");
 const chatRouter = require("./routes/chatRouter");
+const bookingRouter = require("./routes/bookingRouter");
 
 const AppError = require("./utils/AppError");
 
@@ -138,6 +139,7 @@ app.use("", express.static(path.join(__dirname, "public")));
 
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/socket", socketRouter);
+app.use("/api/v1/booking", bookingRouter);
 app.use("/api/v1/drug", drugRouter);
 app.use("/api/v1/graph", graphRouter);
 app.use("/api/v1/chat", chatRouter);

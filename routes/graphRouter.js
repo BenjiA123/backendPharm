@@ -8,7 +8,7 @@ const graphRouter = express.Router();
 
 graphRouter.use(
   AuthController.protect,
-  AuthController.restrictTo("MD", "admin")
+  AuthController.restrictTo("MD", "administrator")
 );
 
 graphRouter

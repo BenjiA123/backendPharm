@@ -5,88 +5,43 @@ const DrugController = require("../controllers/drugController");
 const ImageController = require("../controllers/imageController");
 const drugRouter = express.Router();
 
-drugRouter
-  .route("/search")
-  .get((AuthController.protect, DrugController.searchDrug));
+drugRouter.use(AuthController.protect);
 
-drugRouter
-  .route("/get-drug-stats")
-  .get(
-    AuthController.protect,
-    AuthController.restrictTo("MD", "pharmacist"),
-    DrugController.getDrugsStats
-  );
+drugRouter.get("/", DrugController.getAllDrugs);
 
-// SPECIAL GET ROUTES
-drugRouter
-  .route("/available-in-stock")
-  .get(
-    AuthController.protect,
-    AuthController.restrictTo("MD", "pharmacist"),
-    DrugController.availagleInStock
-  );
-drugRouter
-  .route("/available-in-stock-not-expired")
-  .get(
-    AuthController.protect,
-    AuthController.restrictTo("MD", "pharmacist"),
-    DrugController.availagleInStockNotExpired
-  );
+drugRouter.get("/:id", DrugController.getDrug);
 
-drugRouter
-  .route("/available-in-stock-expired")
-  .get(
-    AuthController.protect,
-    AuthController.restrictTo("MD", "pharmacist"),
-    DrugController.availagleInStockExpired
-  );
-
-drugRouter
-  .route("/expired")
-  .get(
-    AuthController.protect,
-    AuthController.restrictTo("MD", "pharmacist"),
-    DrugController.expired
-  );
-
-drugRouter
-  .route("/about-to-expire")
-  .get(
-    AuthController.protect,
-    AuthController.restrictTo("MD", "pharmacist"),
-    DrugController.almostExpired
-  );
-
-drugRouter
-  .route("/")
-  .get(
-    AuthController.protect,
-    AuthController.restrictTo("MD", "pharmacist"),
-    DrugController.getAllDrugs
-  )
-  .post(
-    AuthController.protect,
-    AuthController.restrictTo("MD", "pharmacist"),
-    DrugController.saveNewDrug
-  );
+drugRouter.route("/search").get(DrugController.searchDrug);
 
 drugRouter
   .route("/:id")
-  .get(
-    AuthController.protect,
-    AuthController.restrictTo("MD", "pharmacist"),
-    DrugController.getDrug
-  )
-  .patch(
-    AuthController.protect,
-    AuthController.restrictTo("MD", "pharmacist"),
-    ImageController.uploadDrugPhoto,
-    DrugController.upDateDrug
-  )
-  .delete(
-    AuthController.protect,
-    AuthController.restrictTo("MD"),
-    DrugController.deleteDrug
-  );
+  .delete(AuthController.restrictTo("MD"), DrugController.deleteDrug);
+
+drugRouter.use(
+  AuthController.protect,
+  AuthController.restrictTo("MD", "administrator", "pharmacist")
+);
+
+drugRouter.route("/get-drug-stats").get(DrugController.getDrugsStats);
+
+// SPECIAL GET ROUTES
+drugRouter.route("/available-in-stock").get(DrugController.availagleInStock);
+drugRouter
+  .route("/available-in-stock-not-expired")
+  .get(DrugController.availagleInStockNotExpired);
+
+drugRouter
+  .route("/available-in-stock-expired")
+  .get(DrugController.availagleInStockExpired);
+
+drugRouter.route("/expired").get(DrugController.expired);
+
+drugRouter.route("/about-to-expire").get(DrugController.almostExpired);
+
+drugRouter.route("/").post(DrugController.saveNewDrug);
+
+drugRouter
+  .route("/:id")
+  .patch(ImageController.uploadDrugPhoto, DrugController.upDateDrug);
 
 module.exports = drugRouter;
