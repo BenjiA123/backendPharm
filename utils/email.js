@@ -25,8 +25,12 @@ module.exports = class Email {
 
   async sendWelcome() {
     await this.send(
-      "<h1>Welcome</h1>",
-      "Welcome to the Gilead Pharmacy Please Click The Link To Verify Your Account"
+      "<h1>Welcome </h1>",
+      `Welcome to the Gilead Pharmacy ${this.firstname}. Please Click The Link To Verify Your Account`
     );
+  }
+
+  async sendMessage() {
+    await this.send("<h1>MESSAGE </h1>", `Your Md Said`);
   }
 };

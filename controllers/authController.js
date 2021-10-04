@@ -126,12 +126,8 @@ exports.sendLogginData = catchAsync(async (req, res, next) => {
 exports.createUser = catchAsync(async (req, res, next) => {
 
   // Create the user
+  // Instead of creating the user i can just send them an email directly
   const user = await User.create(req.body);
-  if (!user) return next(new AppError("No user  ", 404));
-
-  // Get the email
-  const userEmail = req.body.email;
-  if (!userEmail) return next(new AppError("No user email ", 404));
 
   // createreset Token
   const resetToken = await user.createToken();
@@ -151,8 +147,6 @@ exports.createUser = catchAsync(async (req, res, next) => {
       message: "Token has been sent to Your Email😊",
     });
   } catch (error) {
-    console.log(error);
-
     user.token = undefined;
     user.tokenExpires = undefined;
     user.save({ validateBeforeSave: false });
