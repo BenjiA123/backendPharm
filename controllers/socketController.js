@@ -3,7 +3,11 @@ const Drug = require("../model/drugModel");
 const Source = require("../model/sourceModel");
 const Chat = require("../model/chatModel");
 const APIFeatures = require("../utils/apiFeatures");
+const Email = require("../utils/email");
+const AppError = require("../utils/AppError");
+
 const AuthController = require("../controllers/authController");
+const User = require("../model/userModel");
 
 // exports.searchSocket = catchAsync(async (req, res, next) => {
 //   let searchQuery = req.query.q;
@@ -58,6 +62,23 @@ exports.socket = function (socket) {
       const document = await Chat.create(messageData);
 
       socket.emit("messageResult", document);
+    })
+  );
+
+  socket.on(
+    "sendEmailMessage",
+    catchAsync(async function (messageData) {
+      const document = await Chat.create(messageData);
+      const reciever = await User.findById(messageData.reciever);
+      const sender = await User.findById(messageData.sender);
+      await new Email(reciever, undefined).sendEmailMessage(
+        document.message,
+        sender
+      );
+      socket.emit(
+        "emailMessageResult",
+        "This Message has been sent to Email😊"
+      );
     })
   );
 };

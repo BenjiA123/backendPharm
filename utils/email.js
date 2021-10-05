@@ -30,7 +30,13 @@ module.exports = class Email {
     );
   }
 
-  async sendMessage() {
-    await this.send("<h1>MESSAGE </h1>", `Your Md Said`);
+  async sendEmailMessage(message, sender) {
+    await sgMail.send({
+      from: process.env.SENDGRID_EMAIL,
+      to: this.to,
+      subject: `Message from ${sender.name}`,
+      html: `<div>Message: ${message}</div>`,
+      text: `${message}`,
+    });
   }
 };

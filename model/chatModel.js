@@ -15,6 +15,12 @@ const chatSchema = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
+  type: {
+    required: true,
+    type: String,
+    enum: ["chatMessage", "emailMessage"],
+    default: "chatMessage",
+  },
 });
 
 const Chat = mongoose.model("Chat", chatSchema);

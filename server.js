@@ -34,6 +34,9 @@ mongoose
   .catch((err) => {
     logger.logError("Error : ", err);
   });
+mongoose.set("useNewUrlParser", true);
+mongoose.set("useFindAndModify", false);
+mongoose.set("useCreateIndex", true);
 
 const http = require("http");
 const server = http.createServer(app);
