@@ -23,7 +23,7 @@ const DB = process.env.ONLINE_DATABASE.replace(
 mongoose
   // process.env.LOCAL_DATABASE
   // DB
-  .connect(process.env.LOCAL_DATABASE, {
+  .connect(DB, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
