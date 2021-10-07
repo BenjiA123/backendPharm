@@ -216,9 +216,7 @@ exports.restrictTo = (...roles) => {
 };
 
 exports.logout = catchAsync(async (req, res, next) => {
-  let user = new User();
-  user = await User.findById(req.body.user._id);
-
+  const user = await User.findById(req.body.user.currentUser._id);
   if (!user) return new AppError("No user was logged in", 400);
 
   res.cookie("jwt", "logout", {
