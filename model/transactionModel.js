@@ -9,6 +9,7 @@ const transSchema = new mongoose.Schema(
       required: true,
     },
     customerName: {
+      default: "Not Given",
       type: String,
       required: true,
     },

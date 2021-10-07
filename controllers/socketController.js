@@ -81,4 +81,12 @@ exports.socket = function (socket) {
       );
     })
   );
+
+  socket.on(
+    "startChartUpdate",
+    catchAsync(async function (messageData) {
+      console.log("At server");
+      socket.emit("updateTransGraph", "Update Graph😊");
+    })
+  );
 };

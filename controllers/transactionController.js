@@ -3,6 +3,7 @@ const Drug = require("../model/drugModel");
 const factory = require("./handlerFactory");
 const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
+const app = require("../app");
 
 exports.getAllTransactions = factory.getAll(Transaction);
 exports.getTransaction = factory.getOne(Transaction);
@@ -45,30 +46,6 @@ exports.createCustomerPendingTransaction = catchAsync(
         .exec();
     }
 
-    // for (let index = 0; index < document.drugs.length; index++) {
-    //   const drug = await Drug.findById(document.drugs[index]).lean().exec();
-    //   if (!drug) {
-    //     return next(new AppError("Their are no drugs with this Id", 400));
-    //   }
-    //   initalDrugQuantity = document.quantity[index];
-    //   x.push(initalDrugQuantity * drug.sellingPrice);
-    //   let currentAmount = drug.amount - document.quantity[index];
-
-    //   // Edited the amount in the drug collection
-    //   const drugX = await Drug.findById(drug._id).lean().exec();
-
-    //   if (drugX.amount === 0 || drugX.amount - document.quantity[index] < 0)
-    //     return next(
-    //       new AppError(
-    //         `You do not have enough In Stock for this Transaction `,
-    //         500
-    //       )
-    //     );
-    //   await Drug.findByIdAndUpdate(drug._id, { amount: currentAmount })
-    //     .lean()
-    //     .exec();
-    // }
-
     for (let index = 0; index < x.length; index++) {
       const num = x[index];
       if (index + 1 < x.length) {
@@ -79,6 +56,10 @@ exports.createCustomerPendingTransaction = catchAsync(
     document.creator = req.user._id;
 
     const createdTransaction = await Transaction.create(document);
+    // Get socket and emit event
+    // const socket = req.app.get("socket");
+    // console.log(socket);
+    // socket.emit("updateTransGraph");
 
     res.status(200).json({
       status: "success",
