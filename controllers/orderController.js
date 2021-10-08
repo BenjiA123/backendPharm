@@ -45,12 +45,21 @@ exports.getMyOrderedDrug = catchAsync(async (req, res, next) => {
   const orders = await Order.find({ user: req.user._id }).lean().exec();
 
   const drugId = orders.map((el) => el.drug);
-
   const drugs = await Drug.find({ _id: { $in: drugId } });
 
   res.status(200).json({
     result: "success",
     drugs,
+  });
+});
+
+exports.getMyOrders = catchAsync(async (req, res, next) => {
+  // This returns all the orders with this user and not the drugs purchased
+  const orders = await Order.find({ user: req.user._id }).lean().exec();
+
+  res.status(200).json({
+    result: "success",
+    orders,
   });
 });
 
