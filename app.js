@@ -13,6 +13,7 @@ const xss = require("xss-clean");
 const hpp = require("hpp");
 
 const globalErrorHandler = require("./controllers/errorController");
+const orderController = require("./controllers/orderController");
 
 const userRouter = require("./routes/userRouter");
 const socketRouter = require("./routes/socketRouter");
@@ -21,7 +22,7 @@ const drugRouter = require("./routes/drugRouter");
 const transRouter = require("./routes/transactionRouter");
 const sourceRouter = require("./routes/sourceRouter");
 const chatRouter = require("./routes/chatRouter");
-const bookingRouter = require("./routes/bookingRouter");
+const orderRouter = require("./routes/orderRouter");
 
 const AppError = require("./utils/AppError");
 
@@ -35,6 +36,11 @@ const csrfMiddleware = csurf({
 });
 
 app.enable("trust proxy");
+app.post(
+  "/webhook-checkout",
+  express.raw({ type: "application/json" }),
+  orderController.webhookCheckout
+);
 
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: false, limit: "10kb" }));
@@ -73,73 +79,11 @@ app.options(
   })
 );
 
-const Drug = require("./model/drugModel");
-const Trans = require("./model/transactionModel");
-
-app.get("/test", async (req, res, next) => {
-  try {
-    const drug = await Drug.aggregate([
-      {
-        $group: {
-          _id: null,
-          num: { $sum: 1 },
-          drugIds: { $push: "$_id" },
-        },
-      },
-    ]);
-
-    const drugsIdArray = drug[0].drugIds;
-
-    let x = [];
-
-    const dates = [
-      "2021-09-07",
-      "2021-09-08",
-      "2021-09-10",
-      "2021-09-11",
-      "2021-09-12",
-      "2021-09-13",
-      "2021-09-14",
-      "2021-09-15",
-      "2021-09-16",
-      "2021-09-17",
-      "2021-09-18",
-      "2021-09-20",
-      "2021-09-21",
-      "2021-09-22",
-      "2021-09-23",
-      "2021-09-25",
-      "2021-09-26",
-    ];
-    for (let i = 0; i < 100; i++) {
-      const numDrugs = Math.floor(Math.random() * 7);
-
-      for (let i = 0; i < numDrugs; i++) {
-        const randomDrugId = Math.floor(Math.random() * drug[0].drugIds.length);
-        const randomDate = Math.floor(Math.random() * dates.length);
-
-        const trans = {
-          drugs: [
-            { drug: drugsIdArray[randomDrugId], quantity: randomDrugId + 1 },
-          ],
-          customerName: "customer",
-          creator: "613ba33792af3f583445a41c",
-          totalprice: 2345,
-          transactionDate: dates[randomDate],
-        };
-        x.push(trans.drugs);
-        await Trans.create(trans);
-      }
-    }
-
-    res.status(200).json({ result: "Success" });
-  } catch (error) {}
-});
 app.use("", express.static(path.join(__dirname, "public")));
 
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/socket", socketRouter);
-app.use("/api/v1/booking", bookingRouter);
+app.use("/api/v1/order", orderRouter);
 app.use("/api/v1/drug", drugRouter);
 app.use("/api/v1/graph", graphRouter);
 app.use("/api/v1/chat", chatRouter);
