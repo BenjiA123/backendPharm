@@ -20,7 +20,7 @@ const orderSchema = new mongoose.Schema({
 orderSchema.pre(/^find/, async function (next) {
   this.populate({
     path: "drug",
-    select: "genericName",
+    select: "genericName brandName",
   }).populate({
     path: "user",
     select: "-loginDates -logoutDates",
